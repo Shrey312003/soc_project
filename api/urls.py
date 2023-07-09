@@ -12,5 +12,17 @@ urlpatterns = [
     path("student-signup/",views.Student_signup,name="student_signup"),
     path("attendance/",views.Attendance_Sessions,name="attendance_sessions"),
     path("student-attendance/<str:courseId>/<str:date>/",views.Attendance,name="attendance"),
-    path("student-attendance/", views.MakeAttend,name= "make_attend")
+    path("student-attendance/", views.MakeAttend,name= "make_attend"),
+    path("course/<str:id>/", views.Course_home, name="course_home"),
+    path("course/<str:id>/discussions/",
+         views.Discussion_tab, name="course_discussions"),
+    path("course/<str:id>/class/", views.Course_class, name="course_class"),
+    path("course/<str:id>/announcements/",
+         views.Course_announcements, name="course_announcements"),
+    path("announcements/<str:id>/", views.Announcement_followup,
+         name="announcement_followup"),
+    path("course/<str:id>/create-announcement/",
+         views.Create_Announcement, name="create_announcements"),
+    path("course/<str:id>/assignments/",
+         views.assignment_tab, name="course_assignments"),
 ]
