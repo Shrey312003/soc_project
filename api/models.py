@@ -3,8 +3,12 @@ from django.db import models
 # Create your models here.
 
 class Courses(models.Model):
-    courseCode = models.CharField(max_length=5,default=None)
-    courseId = models.CharField(max_length=5,default = None,primary_key=True)
+    courseCode = models.CharField(max_length=5, default=None)
+    courseId = models.CharField(max_length=5, default=None, primary_key=True)
+    professor = models.CharField(max_length=30, default=None)
+    courseName = models.CharField(max_length=60, default=None)
+    description = models.TextField(max_length=500, default=None)
+    credits = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return self.courseCode
@@ -52,3 +56,35 @@ class Attendance_Records(models.Model):
 
     def __str__(self):
         return self.Roll
+
+class Announcements(models.Model):
+    description = models.TextField(max_length=800, default=None)
+    course = models.ForeignKey(Courses, on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)
+
+
+class Announcement_follow(models.Model):
+    description = models.TextField(max_length=500, default=None)
+    announcement = models.ForeignKey(Announcements, on_delete=models.CASCADE)
+    roll = models.CharField(max_length=100, default='')
+    name = models.CharField(max_length=100, default='')
+    Users = (('student', 'student'), ('TA', 'TA'))
+    user = models.CharField(max_length=100, default=None, choices=Users)
+
+
+class Discussions(models.Model):
+    description = models.TextField(max_length=500, default=None)
+    course = models.ForeignKey(Courses, on_delete=models.CASCADE)
+    roll = models.CharField(max_length=100, default='')
+    name = models.CharField(max_length=100, default='')
+    Users = (('student', 'student'), ('TA', 'TA'))
+    user = models.CharField(max_length=100, default=None, choices=Users)
+
+
+class Assignments(models.Model):
+    description = models.TextField(max_length=1000, default=None)
+    course = models.ForeignKey(Courses, on_delete=models.CASCADE)
+    date_published = models.DateTimeField(auto_now_add=True)
+    date_submission = models.DateTimeField()
+    roll = models.CharField(max_length=100, default='')
+    name = models.CharField(max_length=100, default='')
