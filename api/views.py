@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .serializers import Admin_infoSerializer,Ta_infoSerializer,Student_infoSerializer
-from .models import Admin_info,Ta_info,Student_info,Courses
+from .models import Admin_info,Ta_info,Student_info,Courses,Attendance_Records,Attendance_sessions
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 # Create your views here.
@@ -138,3 +138,62 @@ def Student_signup(request):
 
         return Response("Student added success")
     return Response("wrong method")
+
+@api_view(['GET','POST'])
+def Attendance_Sessions(request):
+    if request.method == "POST":
+        data = JSONParser().parse(request)
+
+        course = data['courseId']
+        date = data["date"]
+        start = data["start_time"]
+
+        instance = Attendance_sessions.objects.create(
+            CourseId= course,
+            Date = date,
+            Start = start
+        )
+        instance.save()
+
+        return Response("Attendance session created")
+       
+
+@api_view(['GET','POST'])
+def Attendance (request,courseId,date):
+    if request.method == "GET":
+        attendance = Attendance_sessions.objects.filter(CourseId = courseId, Date = date)
+
+        if(attendance.exists()):
+            response_data = {
+                'id' : attendance.first().id,
+                'start': attendance.first().Start
+            }
+            return Response(response_data)
+        else:
+            return Response("date is incorrect")
+        
+@api_view(['GET','POST'])
+def MakeAttend(request):
+    if request.method == "POST":
+        data = JSONParser().parse(request)
+
+        roll = data["roll"]
+        courseId = data["courseId"]
+        sessionId = data["sessionId"]
+        time = data["time"]
+
+        session = Attendance_sessions.objects.filter(id = sessionId)
+
+        if(session.exists()):
+            instance = Attendance_Records.objects.create(
+                Session = session.first(),
+                CourseId = courseId,
+                Roll = roll,
+                Attend_time = time
+            )
+
+            instance.save()
+
+            return Response("Attendance recorded")
+        return Response("Session doesnt exist")
+    return Response("invalid type")

@@ -36,3 +36,19 @@ class Student_info(models.Model):
     def __str__(self):
         return self.Roll
 
+class Attendance_sessions(models.Model):
+    CourseId = models.CharField(max_length=5,default='')
+    Date = models.DateField(default='')
+    Start = models.TimeField(default='')
+
+    def __str__(self):
+        return str(self.id) + " " +self.CourseId
+    
+class Attendance_Records(models.Model):
+    Session = models.ForeignKey(Attendance_sessions,on_delete=models.CASCADE,default='')
+    CourseId = models.CharField(max_length=5,default='')
+    Roll = models.CharField(max_length=100, default='')
+    Attend_time = models.TimeField(default='')
+
+    def __str__(self):
+        return self.Roll

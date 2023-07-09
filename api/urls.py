@@ -9,5 +9,8 @@ urlpatterns = [
     path("ta/<str:roll>/",views.Ta_data,name="ta"),
     path("ta/<str:roll>/delete-course/",views.Ta_courseRemove,name="ta_course_delete"),
     path("student/<str:roll>/",views.Student_data,name="student"),
-    path("student-signup/",views.Student_signup,name="student_signup")
+    path("student-signup/",views.Student_signup,name="student_signup"),
+    path("attendance/",views.Attendance_Sessions,name="attendance_sessions"),
+    path("student-attendance/<str:courseId>/<str:date>/",views.Attendance,name="attendance"),
+    path("student-attendance/", views.MakeAttend,name= "make_attend")
 ]
