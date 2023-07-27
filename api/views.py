@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .serializers import Admin_infoSerializer,Ta_infoSerializer,Student_infoSerializer
-from .models import Admin_info,Ta_info,Student_info,Courses,Attendance_Records,Attendance_sessions
+from .serializers import Admin_infoSerializer, Ta_infoSerializer, Student_infoSerializer, CoursesSerializer, Announcement_followSerializer, AnnouncementsSerializer, AssignmentsSerializer, Course_postSerializer, post_CommentsSerializer
+from .models import Admin_info, Ta_info, Student_info, Courses, Attendance_Records, Attendance_sessions, Assignments, Announcements, Announcement_follow, Course_post, post_Comments
+from .filters import Course_postFilter
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 # Create your views here.
@@ -321,7 +322,7 @@ def Create_Announcement(request, id):
         return Response('Please login')
 
 
-@api_view(['POST', 'GET'])
+@api_view(['GET'])
 @csrf_exempt
 def Discussion_tab(request, id):
     course = Courses.objects.filter(courseId=id)
@@ -332,17 +333,91 @@ def Discussion_tab(request, id):
         user = request.session['user']
         if (user == 'TA' and course[0] in Ta_info.objects.filter(Roll=roll)[0].course.all()) or (user == 'student' and course[0] in Student_info.objects.filter(Roll=roll)[0].course.all()):
             if request.method == 'GET':
-                discussions = Discussions.objects.filter(course=course[0])
+                discussions = Course_post.objects.filter(courseId=course[0])
+                filterset = Course_postFilter(
+                    request.GET, queryset=discussions)
+                if filterset.is_valid():
+                    if filterset.qs.exists():
+                        discussions_serializer = Course_postSerializer(
+                            filterset.qs, many=True)
+                        return Response(discussions_serializer.data)
+                    return Response('No Discussions Found')
+        else:
+            return Response('You are not registered for this course')
+    except:
+        return Response('Please login')
+
+@api_view(['GET', 'POST'])
+@csrf_exempt
+def viewmyPosts(request, id):
+    course = Courses.objects.filter(courseId=id)
+    if not course.exists():
+        return Response('Course Not Found')
+    try:
+        roll = request.session['roll']
+        user = request.session['user']
+        if (user == 'TA' and course[0] in Ta_info.objects.filter(Roll=roll)[0].course.all()) or (user == 'student' and course[0] in Student_info.objects.filter(Roll=roll)[0].course.all()):
+            if request.method == 'GET':
+                discussions = Course_post.objects.filter(
+                    course=course[0], roll=roll)
                 if discussions.exists():
-                    discussions_serializer = DiscussionsSerializer(
+                    discussions_serializer = Course_postSerializer(
                         discussions, many=True)
                     return Response(discussions_serializer.data)
-                return Response('No Discussions Found')
+                return Response('You have not posted anything')
+        else:
+            return Response('You are not registered for this course')
+    except:
+        return Response('Please login')
+
+@api_view(['GET', 'POST'])
+@csrf_exempt
+def PostComments(request, id):
+    posts = Course_post.objects.filter(id=id)
+    if not posts.exists():
+        return Response('Post Not Found')
+    try:
+        roll = request.session['roll']
+        user = request.session['user']
+        if (user == 'TA' and posts[0].course in Ta_info.objects.filter(Roll=roll)[0].course.all()) or (user == 'student' and posts[0].course in Student_info.objects.filter(Roll=roll)[0].course.all()):
+            if request.method == 'GET':
+                comments = post_Comments.objects.filter(
+                    post_Id=posts[0])
+                if comments.exists():
+                    comment_serializer = post_CommentsSerializer(
+                        comments, many=True)
+                    return Response(comment_serializer.data)
+                return Response('No comments exist')
+            if request.method == 'POST':
+                comment_info = JSONParser().parse(request)
+                comment_description = comment_info["body"]
+                comment = post_Comments.objects.create(
+                    body=comment_description, postId=posts[0], roll=request.session['roll'], name=request.session['name'], user=request.session['user'])
+                comment.save()
+                return Response('Comment added successfully')
+        else:
+            return Response('You are not registered for this course')
+    except:
+        return Response('Please login')
+
+
+@api_view(['POST'])
+@csrf_exempt
+def Create_post(request, id):
+    course = Courses.objects.filter(courseId=id)
+    if not course.exists():
+        return Response('Course Not Found')
+    try:
+        roll = request.session['roll']
+        user = request.session['user']
+        if (user == 'TA' and course[0] in Ta_info.objects.filter(Roll=roll)[0].course.all()) or (user == 'student' and course[0] in Student_info.objects.filter(Roll=roll)[0].course.all()):
             if request.method == 'POST':
                 discussion_info = JSONParser().parse(request)
-                discussion = Discussions.objects.create(
-                    description=discussion_info['description'],
-                    course=course[0],
+                discussion = Course_post.objects.create(
+                    subject=discussion_info['subject'],
+                    body=discussion_info['body'],
+                    postType=discussion_info['Post Type'],
+                    courseId=course[0],
                     roll=request.session['roll'],
                     name=request.session['name'],
                     user=request.session['user']
@@ -353,6 +428,7 @@ def Discussion_tab(request, id):
             return Response('You are not registered for this course')
     except:
         return Response('Please login')
+            
 
 
 @api_view(['POST', 'GET'])
