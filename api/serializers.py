@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer
-from .models import Admin_info,Ta_info,Student_info, Courses, Announcements, Announcement_follow, Discussions, Assignments
+from .models import Admin_info, Ta_info, Student_info, Courses, Announcements, Announcement_follow, Course_post, Assignments, post_Comments
 
 class Admin_infoSerializer(ModelSerializer):
     class Meta:
@@ -34,13 +34,20 @@ class Announcement_followSerializer(ModelSerializer):
         fields = '__all__'
 
 
-class DiscussionsSerializer(ModelSerializer):
-    class Meta:
-        model = Discussions
-        fields = '__all__'
-
 
 class AssignmentsSerializer(ModelSerializer):
     class Meta:
         model = Assignments
         fields = '__all__'
+
+class Course_postSerializer(ModelSerializer):
+    class Meta:
+        model = Course_post
+        fields = '__all__'
+
+
+class post_CommentsSerializer(ModelSerializer):
+    class Meta:
+        model = post_Comments
+        fields = '__all__'
+
