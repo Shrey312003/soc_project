@@ -25,4 +25,10 @@ urlpatterns = [
          views.Create_Announcement, name="create_announcements"),
     path("course/<str:id>/assignments/",
          views.assignment_tab, name="course_assignments"),
+    path("course/<str:id>/mydiscussions/",
+         views.viewmyPosts, name="My_course_discussions"),
+    path("discussions/<str:id>/comments/",
+         views.PostComments, name="post_comments"),
+    path("course/<str:id>/discussions/createpost/",
+         views.Create_post, name="create_course_post"),
 ]
