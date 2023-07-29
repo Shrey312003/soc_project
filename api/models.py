@@ -72,13 +72,30 @@ class Announcement_follow(models.Model):
     user = models.CharField(max_length=100, default=None, choices=Users)
 
 
-class Discussions(models.Model):
-    description = models.TextField(max_length=500, default=None)
-    course = models.ForeignKey(Courses, on_delete=models.CASCADE)
+class Course_post(models.Model):
+    subject = models.TextField(max_length=500, default=None)
+    body = models.TextField(max_length=1000, default=None)
+    courseId = models.ForeignKey(Courses, on_delete=models.CASCADE)
     roll = models.CharField(max_length=100, default='')
     name = models.CharField(max_length=100, default='')
     Users = (('student', 'student'), ('TA', 'TA'))
-    user = models.CharField(max_length=100, default=None, choices=Users)
+    UserType = models.CharField(max_length=100, default=None, choices=Users)
+    date = models.DateTimeField(auto_now=True)
+    postTypes = (('Test Announcement', 'Test Announcement'),
+                 ('Doubts', 'Doubts'), ('General', 'Geeneral'))
+    postType = models.CharField(
+        max_length=100, default=None, choices=postTypes)
+
+
+class post_Comments(models.Model):
+    postId = models.ForeignKey(Course_post, on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now=True)
+    roll = models.CharField(max_length=100, default='')
+    name = models.CharField(max_length=100, default='')
+    Users = (('student', 'student'), ('TA', 'TA'))
+    UserType = models.CharField(max_length=100, default=None, choices=Users)
+    body = models.TextField(max_length=1000, default=None)
+
 
 
 class Assignments(models.Model):
